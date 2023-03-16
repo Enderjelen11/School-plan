@@ -11,10 +11,19 @@
     "version": "0.1.0"
   },
   "tauri": {
-    "allowlist": {
-      "all": false
-    },
-    "bundle": {
+      "allowlist": {
+          "fs": {
+              "all": true,
+              "scope": ["$APP/*", "$DESKTOP/*", "$APPDATA/*"] 
+          },
+          "path": {
+              "all": true
+          },
+          "dialog": {
+            "all": true
+          }
+      },
+      "bundle": {
       "active": true,
       "category": "DeveloperTool",
       "copyright": "",

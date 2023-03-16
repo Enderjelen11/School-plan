@@ -1,6 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import ComponentAdder from './ComponentAdder.jsx'
+import Lessons from './Lessons.jsx'
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
@@ -28,5 +29,14 @@ function renderComponentAdders(names,onFinish){
     eval(string+')()')
 }
 
+function lessonsScene(){
+    root.render(
+          <React.StrictMode>
+            <Lessons />
+          </React.StrictMode>,
+        )
+}
+
 //going to the end will couse an error for now
-renderComponentAdders(['Rooms','Subjects','Teachers'])
+//renderComponentAdders(['Rooms','Subjects','Teachers','Classes'],lessonsScene)
+lessonsScene();

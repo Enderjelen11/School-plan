@@ -26,7 +26,7 @@ function ComponentAdder({ onFinished, componentName}) {
         changeElements(p=>p.filter(e=>e!=byName));
     }
 
-    async function finish(){
+    function finish(){
         writeFile(
             {
                 contents: JSON.stringify(elements),

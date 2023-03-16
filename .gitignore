@@ -27,3 +27,4 @@ node_modules/
 src-tauri/icons/
 package-lock.json
 src/assets/
+.DS_Store
