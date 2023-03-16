@@ -6,11 +6,6 @@ import LessonsList from './LessonsList'
 import ComponetCheckerList from './ComponetCheckerList';
 import saveSchoolPlan from './saveSchoolPlan';
 
-const classes = (JSON.parse(await readTextFile(`classes.json`, { dir: BaseDirectory.AppData}))??[]).map(name=>new Object({
-    name,
-    lessons:[]
-}));
-
 function getRandomColor() {
   var letters = '0123456789ABCDEF';
   var color = '#';
@@ -20,34 +15,51 @@ function getRandomColor() {
   return color;
 }
 
-const rooms = (JSON.parse(await readTextFile(`Rooms.json`, { dir: BaseDirectory.AppData}))??[]).map(name=>new Object({
-    name,
-    color:getRandomColor()
-}));
+let loadedSaved = false;
 
-const subjects = (JSON.parse(await readTextFile(`Subjects.json`, { dir: BaseDirectory.AppData}))??[]).map(name=>new Object({
-    name,
-    color:getRandomColor()
-}));
+let classes = [];
+let subjects = [];
+let rooms = [];
+let teachers = [];
 
-const teachers = (JSON.parse(await readTextFile(`Teachers.json`, { dir: BaseDirectory.AppData}))??[]).map(name=>new Object({
-    name,
-    color:getRandomColor()
-}));
-
-
+async function readFile(filename){
+    const contents = await readTextFile(filename, { dir: BaseDirectory.AppData});
+    const arr = JSON.parse(contents||'[]');
+    return arr.map(name=>new Object({
+        name
+    }))
+}
 
 export default function Lessons() {
-    const [currentClass,setCurrentClass] = useState(classes[0]);
+    const [currentClass,setCurrentClass] = useState({name:'couldn\'t load saved classes',lessons:[]});
    
     const [adder,setAdder] = useState(false);
     
-    function selectClass(name){
+    if(!loadedSaved){
+        readFile('Classes.json').then(r=>{
+            const savedClasses = r.map(e=>new Object({...e,lessons:[]}))
+            setCurrentClass(savedClasses[0]);
+            classes=savedClasses;
+        });
+        readFile('Subjects.json').then(r=>subjects=r.map(e=>new Object({...e,color:getRandomColor()})));
+        readFile('Rooms.json').then(r=>rooms=r);
+        readFile('Teachers.json').then(r=>teachers=r);
+        if((classes&&subjects&&rooms&&teachers).length){
+            console.log(classes,subjects,rooms,teachers)
+            loadedSaved=true;
+        }
+    }
+
+    function saveClass(name){
         const classesCopy = [...classes];
-        const classChosen = classesCopy.find(classSEL=>classSEL==name);
-        setAdder(false);
-        const index = classes.findIndex(e=>e.name==currentClass.name);
+        const index = classesCopy.findIndex(e=>e.name==currentClass.name);
         classes[index]=currentClass;
+    }
+    
+    function selectClass(name){
+        saveClass(name);
+        setAdder(false);
+        const classChosen = classes.find(classSEL=>classSEL==name);
         setCurrentClass(classChosen);
     }
 
@@ -129,7 +141,7 @@ export default function Lessons() {
         const teacher = currentLesson.teacher[0];
         const rooms = currentLesson.rooms;
         const color = subjects.find(e=>e.name==name).color;
-        if(currentClass.lessons.findIndex(l=>l.subject==currentLesson.subject[0])==-1){
+        if(currentClass.lessons.findIndex(l=>l.name==currentLesson.subject[0])==-1){
             setCurrentClass({
                 name:currentClass.name,
                 lessons:[...currentClass.lessons,{

@@ -37,6 +37,5 @@ function lessonsScene(){
         )
 }
 
-//going to the end will couse an error for now
-//renderComponentAdders(['Rooms','Subjects','Teachers','Classes'],lessonsScene)
-lessonsScene();
+renderComponentAdders(['Rooms','Subjects','Teachers','Classes'],lessonsScene)
+//lessonsScene();
