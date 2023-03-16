@@ -4,7 +4,7 @@ import ClassesList from './ClassesList'
 import {BaseDirectory, readTextFile, writeFile} from '@tauri-apps/api/fs';
 import LessonsList from './LessonsList'
 import ComponetCheckerList from './ComponetCheckerList';
-import saveSchoolPlan from './saveSchoolPlan';
+import generatePlan from './generateSchoolPlan';
 
 function getRandomColor() {
   var letters = '0123456789ABCDEF';
@@ -45,19 +45,17 @@ export default function Lessons() {
         readFile('Rooms.json').then(r=>rooms=r);
         readFile('Teachers.json').then(r=>teachers=r);
         if((classes&&subjects&&rooms&&teachers).length){
-            console.log(classes,subjects,rooms,teachers)
             loadedSaved=true;
         }
     }
 
-    function saveClass(name){
+    function saveClass(classToBeSaved){
         const classesCopy = [...classes];
-        const index = classesCopy.findIndex(e=>e.name==currentClass.name);
-        classes[index]=currentClass;
+        const index = classesCopy.findIndex(e=>e.name==classToBeSaved.name);
+        classes[index]=classToBeSaved;
     }
     
     function selectClass(name){
-        saveClass(name);
         setAdder(false);
         const classChosen = classes.find(classSEL=>classSEL==name);
         setCurrentClass(classChosen);
@@ -141,32 +139,20 @@ export default function Lessons() {
         const teacher = currentLesson.teacher[0];
         const rooms = currentLesson.rooms;
         const color = subjects.find(e=>e.name==name).color;
-        if(currentClass.lessons.findIndex(l=>l.name==currentLesson.subject[0])==-1){
-            setCurrentClass({
-                name:currentClass.name,
-                lessons:[...currentClass.lessons,{
-                    name,
-                    teacher,
-                    rooms,
-                    color,
-                    amount:lessonsAmountRef.current.value
-                }]
-            })
-        }else{
-            const currentClassLessonsCopy = [...currentClass.lessons];
-            const withoutCurrentLesson = currentClassLessonsCopy.filter(e=>e.name!=name);
-            setCurrentClass({
-                name:currentClass.name,
-                lessons:[...withoutCurrentLesson,{
-                    name,
-                    teacher,
-                    rooms,
-                    color,
-                    amount:lessonsAmountRef.current.value
+        const withoutCurrentLesson = [...currentClass.lessons].filter(e=>e.name!=name);
+        const newClass = {
+            name:currentClass.name,
+            lessons:[...withoutCurrentLesson,{
+                name,
+                teacher,
+                rooms,
+                color,
+                amount:lessonsAmountRef.current.value
 
-                }]
-            })
+            }]
         }
+        setCurrentClass(newClass);
+        saveClass(newClass);
     }
 
     function Adder({children}){
@@ -181,7 +167,7 @@ export default function Lessons() {
     return (
       <>
         <div className="sidenav">
-            <button type="button" onClick={saveSchoolPlan}>ready?</button>
+            <button type="button" onClick={()=>{generatePlan(classes)}}>ready?</button>
             <ClassesList classes={classes} onSelect={selectClass} />
         </div>
 
