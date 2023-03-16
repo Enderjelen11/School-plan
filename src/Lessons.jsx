@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, {useState, useRef} from 'react'
 import './app.css'
 import ClassesList from './ClassesList'
 import {BaseDirectory, readTextFile, writeFile} from '@tauri-apps/api/fs';
@@ -57,31 +57,39 @@ export default function Lessons() {
             rooms:[]
         });
 
+    const lessonsAmountRef = useRef();
+
     function toggleAdder(){
         setLesson({
             subject:[],
             teacher:[],
             rooms:[]
-        })
+        });
         setAdder(true);
+        setTimeout(()=>{lessonsAmountRef.current.value=1},50);
     }
 
     const change = {
         subjects:(name)=>{
+            const n = lessonsAmountRef.current.value*1;
             setLesson({
                 subject:[name],
                 teacher:currentLesson.teacher,
-                rooms:currentLesson.rooms
+                rooms:currentLesson.rooms,
             })
+            setTimeout(()=>{lessonsAmountRef.current.value=n},50);
         },
         teachers:(name)=>{
+            const n = lessonsAmountRef.current.value*1;
             setLesson({
                 subject:currentLesson.subject,
                 teacher:[name],
-                rooms:currentLesson.rooms
+                rooms:currentLesson.rooms,
             })
+            setTimeout(()=>{lessonsAmountRef.current.value=n},50);
         },
         rooms:(name)=>{
+            const n = lessonsAmountRef.current.value*1;
             if(currentLesson.rooms.includes(name)){
                 const lessonsRoomsCopy = [...currentLesson.rooms];
                 const withoutSelected = lessonsRoomsCopy.filter(e=>e!=name);
@@ -98,6 +106,7 @@ export default function Lessons() {
                     rooms:[...currentLesson.rooms,name]
                 })
             }
+            setTimeout(()=>{lessonsAmountRef.current.value=n},50);
         }
     }
 
@@ -107,9 +116,13 @@ export default function Lessons() {
             subject:[name],
             teacher:[lesson.teacher],
             rooms:lesson.rooms
-        })
-        setAdder(true);
+        });
+        if(!adder){
+            setAdder(true);
+        }
+        setTimeout(()=>{lessonsAmountRef.current.value=lesson.amount},50);
     }
+    
 
     function saveCurrentLesson(){
         const name = currentLesson.subject[0];
@@ -123,7 +136,8 @@ export default function Lessons() {
                     name,
                     teacher,
                     rooms,
-                    color
+                    color,
+                    amount:lessonsAmountRef.current.value
                 }]
             })
         }else{
@@ -135,22 +149,17 @@ export default function Lessons() {
                     name,
                     teacher,
                     rooms,
-                    color
+                    color,
+                    amount:lessonsAmountRef.current.value
+
                 }]
             })
         }
     }
 
-    function ComponentMenu(){
+    function Adder({children}){
         if(adder){
-            return <div>
-                <div>
-                    <ComponetCheckerList onChange={change.subjects} selected={currentLesson.subject} title="Subjects">{subjects}</ComponetCheckerList>
-                    <ComponetCheckerList onChange={change.teachers} selected={currentLesson.teacher} title="Teachers">{teachers}</ComponetCheckerList>
-                    <ComponetCheckerList onChange={change.rooms} selected={currentLesson.rooms} title="Rooms">{rooms}</ComponetCheckerList>
-                </div>
-                <button onClick={saveCurrentLesson}>save</button>
-                </div>
+            return <div>{children}</div>;
         }else{
             return <div></div>;
         }
@@ -168,7 +177,20 @@ export default function Lessons() {
             <div><font size="+3">{currentClass.name}:</font></div>
             <br></br>
             <LessonsList lessons={currentClass.lessons} selectLesson={selectLesson} plusClicked={toggleAdder}/>
-            <ComponentMenu/>
+            <Adder>
+                <div>
+                    <b>How many lessons will there be in one week</b>
+                    <input type="text" ref={lessonsAmountRef}></input>
+                </div>
+                </Adder>
+                <Adder>
+                <div>
+                    <ComponetCheckerList onChange={change.subjects} selected={currentLesson.subject} title="Subjects">{subjects}</ComponetCheckerList>
+                    <ComponetCheckerList onChange={change.teachers} selected={currentLesson.teacher} title="Teachers">{teachers}</ComponetCheckerList>
+                    <ComponetCheckerList onChange={change.rooms} selected={currentLesson.rooms} title="Rooms">{rooms}</ComponetCheckerList>
+                </div>
+                <button onClick={saveCurrentLesson}>save</button>
+            </Adder>
         </div>
       </>
     )
