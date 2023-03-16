@@ -31,13 +31,20 @@ async function readFile(filename){
 }
 
 export default function Lessons() {
-    const [currentClass,setCurrentClass] = useState({name:'couldn\'t load saved classes',lessons:[]});
+    const [currentClass,setCurrentClass] = useState({
+        name:'couldn\'t load saved classes',
+        maxLessons:0,
+        lessons:[]
+    });
    
     const [adder,setAdder] = useState(false);
+
+    const maxLessonsInDay = useRef();
+
     
     if(!loadedSaved){
         readFile('Classes.json').then(r=>{
-            const savedClasses = r.map(e=>new Object({...e,lessons:[]}))
+            const savedClasses = r.map(e=>new Object({...e,maxLessons:3,lessons:[]}))
             setCurrentClass(savedClasses[0]);
             classes=savedClasses;
         });
@@ -55,10 +62,13 @@ export default function Lessons() {
         classes[index]=classToBeSaved;
     }
     
-    function selectClass(name){
-        setAdder(false);
-        const classChosen = classes.find(classSEL=>classSEL==name);
-        setCurrentClass(classChosen);
+    function selectClass(classSelected){
+        if(classSelected.name!=currentClass.name){
+            saveClass({...currentClass,maxLessons:maxLessonsInDay.current.value});
+            setAdder(false);
+            setCurrentClass(classSelected);
+            maxLessonsInDay.current.value=classSelected.maxLessons;
+        }
     }
 
     const [currentLesson,setLesson] = useState({
@@ -142,6 +152,7 @@ export default function Lessons() {
         const withoutCurrentLesson = [...currentClass.lessons].filter(e=>e.name!=name);
         const newClass = {
             name:currentClass.name,
+            maxLessons:maxLessonsInDay.current.value,
             lessons:[...withoutCurrentLesson,{
                 name,
                 teacher,
@@ -172,10 +183,16 @@ export default function Lessons() {
         </div>
 
         <div className="main">
-            <div><font size="+3">{currentClass.name}:</font></div>
+            <div><font size="+3"><b>{currentClass.name}:</b></font></div>
             <br></br>
+            <div>
+                <b>Max lessons in one day:</b>
+                <input type="text" ref={maxLessonsInDay}></input>
+            </div>
+
             <LessonsList lessons={currentClass.lessons} selectLesson={selectLesson} plusClicked={toggleAdder}/>
             <Adder>
+                <div><font size="+1"><b>{currentLesson.subject}:</b></font></div>
                 <div>
                     <b>How many lessons will there be in one week</b>
                     <input type="text" ref={lessonsAmountRef}></input>
