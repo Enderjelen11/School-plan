@@ -19,8 +19,7 @@ let loadedSaved = false;
 
 const devPreset = [{"name":"1","maxLessons":"3","lessons":[{"name":"Fizyka","teacher":"Sławomir Borys(Fizyka)","rooms":["1(fizyka)"],"color":"#83627A","amount":"4"},{"name":"Matematyka","teacher":"Dariusz Dziędziel(matematyka)","rooms":["2(matematyka)"],"color":"#D3A23A","amount":"5"},{"name":"Polski","teacher":"Grażyna Jarosz(polski)","rooms":["4(polski)"],"color":"#59B16D","amount":"5"},{"name":"Angielski","teacher":"Agnieszka Majewską(angielski)","rooms":["6(angielski)"],"color":"#E34BD7","amount":"1"}]},{"name":"2","maxLessons":"3","lessons":[{"name":"Fizyka","teacher":"Sławomir Borys(Fizyka)","rooms":["1(fizyka)"],"color":"#83627A","amount":"2"},{"name":"Matematyka","teacher":"Iwona Kozioł(matematyka)","rooms":["3(matematyka)"],"color":"#D3A23A","amount":"5"},{"name":"Polski","teacher":"Kacper Nowak(polski)","rooms":["5(polski)"],"color":"#59B16D","amount":"5"},{"name":"Angielski","teacher":"Mateusz Kwiecień(angielski)","rooms":["7(angielski)"],"color":"#E34BD7","amount":"3"}]},{"name":"3","maxLessons":"3","lessons":[{"name":"Fizyka","teacher":"Sławomir Borys(Fizyka)","rooms":["1(fizyka)"],"color":"#83627A","amount":"1"},{"name":"Matematyka","teacher":"Iwona Kozioł(matematyka)","rooms":["2(matematyka)","3(matematyka)"],"color":"#D3A23A","amount":"6"},{"name":"Polski","teacher":"Grażyna Jarosz(polski)","rooms":["4(polski)"],"color":"#59B16D","amount":"5"},{"name":"Angielski","teacher":"Agnieszka Majewską(angielski)","rooms":["6(angielski)"],"color":"#E34BD7","amount":"3"}]},{"name":"4","maxLessons":"2","lessons":[{"name":"Fizyka","teacher":"Sławomir Borys(Fizyka)","rooms":["1(fizyka)"],"color":"#83627A","amount":"4"},{"name":"Matematyka","teacher":"Dariusz Dziędziel(matematyka)","rooms":["3(matematyka)"],"color":"#D3A23A","amount":"1"},{"name":"Polski","teacher":"Kacper Nowak(polski)","rooms":["5(polski)"],"color":"#59B16D","amount":"1"},{"name":"Angielski","teacher":"Mateusz Kwiecień(angielski)","rooms":["6(angielski)","7(angielski)"],"color":"#E34BD7","amount":"4"}]}];
 
-//change value to [] for production
-let classes = devPreset;
+let classes = [];
 let subjects = [];
 let rooms = [];
 let teachers = [];
@@ -34,11 +33,11 @@ async function readFile(filename){
 }
 
 export default function Lessons() {
-    const [currentClass,setCurrentClass] = useState(devPreset[0]/*{
+    const [currentClass,setCurrentClass] = useState({
         name:'couldn\'t load saved classes',
         maxLessons:0,
         lessons:[]
-    }*/);
+    });
    
     const [adder,setAdder] = useState(false);
 
@@ -46,12 +45,11 @@ export default function Lessons() {
 
     
     if(!loadedSaved){
-        //uncoment lines below for production
-       //readFile('Classes.json').then(r=>{
-       //    const savedClasses = r.map(e=>new Object({...e,maxLessons:3,lessons:[]}))
-       //    setCurrentClass(savedClasses[0]);
-       //    classes=savedClasses;
-       //});
+        readFile('Classes.json').then(r=>{
+            const savedClasses = r.map(e=>new Object({...e,maxLessons:3,lessons:[]}))
+            setCurrentClass(savedClasses[0]);
+            classes=savedClasses;
+         });
         readFile('Subjects.json').then(r=>subjects=r.map(e=>new Object({...e,color:getRandomColor()})));
         readFile('Rooms.json').then(r=>rooms=r);
         readFile('Teachers.json').then(r=>teachers=r);
