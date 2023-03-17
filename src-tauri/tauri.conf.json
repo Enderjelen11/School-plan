@@ -25,8 +25,7 @@
       },
       "bundle": {
       "active": true,
-      "category": "DeveloperTool",
-      "copyright": "",
+      "copyright": "Kacper Jelonek",
       "deb": {
         "depends": []
       },
@@ -38,7 +37,7 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "identifier": "com.tauri.dev",
+      "identifier": "kacperjelonek/school-plan",
       "longDescription": "",
       "macOS": {
         "entitlements": null,
