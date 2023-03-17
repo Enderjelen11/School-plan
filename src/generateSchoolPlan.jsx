@@ -67,7 +67,7 @@ export default async function generatePlan(classes){
                         class:rClass.class,
                         teacher:rLesson.teacher,
                         name:rLesson.name,
-                        room:rRoom.room
+                        room:rRoom
                     });
                 }
             }
@@ -77,16 +77,49 @@ export default async function generatePlan(classes){
 
         days.push(day);
     }
-    savePlan(JSON.stringify(days));
+    savePlanToFile(input.map(e=>e.class),days);
 }
 
-async function savePlan(contents){
+
+function filter3dimArr(byClassName,array){
+    const x = [];
+
+    for(let i = 0; i<array.length; i++){
+        const y = [];
+        for(let j = 0; j<array[i].length; j++){
+            y.push(array[i][j].filter(e=>e.class==byClassName)); 
+        }
+        x.push(y);
+    }
+
+    return x;
+}
+
+function ThreeDimArrToText(array){
+    let string = "";
+
+    for(let i = 0; i<array.length; i++){
+        for(let j = 0; j<array[i].length; j++){
+            const l = array[i][j][0]||{name:"",teacher:"",room:""};
+            string=string+`${l.name} ${l.teacher} ${l.room}\t`;
+        }
+        string=string+`\n`
+    }
+    
+    return string;
+}
+
+
+async function savePlanToFile(names,plan){
     try {
-    const savePath = await save();
-    if (!savePath) return;
-    await invoke("save_file", { path: savePath, contents });
-    /**
-     */
+        const savePath = await save();
+        if (!savePath) return;
+        invoke("create_dir",{path:savePath});
+        for(name of names){
+            const contents = ThreeDimArrToText(filter3dimArr(name,plan));
+            const path = savePath + `/${name}.txt`;
+            await invoke("save_file", { path, contents });
+        }
   } catch (err) {
     console.error(err);
   }
