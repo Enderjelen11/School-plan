@@ -7,7 +7,7 @@ use std::fs;
 
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![save_file])
+        .invoke_handler(tauri::generate_handler![save_file,print_dev])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
@@ -15,5 +15,11 @@ fn main() {
 #[tauri::command]
 fn save_file(path: String, contents: String) {
     println!("{}",path);
-    fs::create_dir(path).unwrap();
+    fs::write(path, contents).unwrap();
+    //fs::create_dir(path).unwrap();
+}
+
+#[tauri::command]
+fn print_dev(text: String) {
+    println!("{}",text);
 }
