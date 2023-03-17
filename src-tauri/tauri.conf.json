@@ -25,7 +25,8 @@
       },
       "bundle": {
       "active": true,
-      "copyright": "Kacper Jelonek",
+      "category": "Utility",
+      "copyright": "kacperjelonek",
       "deb": {
         "depends": []
       },
